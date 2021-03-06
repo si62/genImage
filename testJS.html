@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<ul id='slideshow'></ul>
+
+<button id='next'>Next </button>
+
+<div>
+	<div>Result:</div>
+	<ol id="resultList"></ol>
+</div>
+<button id='again'>Again </button>
+<style>
+	/* reset */
+body, ul, li, p, h1, h2, h3, h4 {
+  margin: 0;
+  padding: 0;
+}
+
+/* slideshow */
+
+ul {
+  width: 400px;
+  height: 200px;
+  
+  margin: 0 auto;
+  
+  position: relative;
+  
+  list-style: none;
+  
+  -webkit-perspective: 700px;
+  perspective: 700px;
+}
+
+ul > li {
+  position: absolute;  
+  
+  transform-origin: 0 100%;
+}
+ul > li.current {
+  transition: all 0.4s ease-out;
+  opacity: 1.0;
+}
+ul > li.in {
+  opacity: 0.0;
+  transform: rotate3d(1, 0, 0, -90deg);
+}
+ul > li.out {
+  transition: all 0.4s ease-out;
+  opacity: 0.0;
+  transform: rotate3d(1, 0, 0, 90deg);
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+const defaultNameList=["李小心","陳大文","何中言","張三峰","周白雲","楊世華","林森木","袁圓"];
+var nameList=defaultNameList.slice();
+var slides;
+
+var currentIndex = 0;
+  
+var minimumCount = 20;
+var maximumCount = 200;
+var count = 0;
+
+function addResult(){
+  var li = $("<li>"+$('.current').attr("data-n")+"</li>");
+  $("#resultList").append(li);
+  //Remove name on list
+   nameList.splice($('.current').attr("data-ix"), 1);
+   if(nameList.length==0){
+	//$("#again").prop("disabled",false);
+	$("#next").prop("disabled",true);
+   }
+}
+
+function createList(){
+    $('#slideshow').empty();
+	$.each(nameList,function(index){
+
+	 var li = $("<li data-ix='"+index+"' data-n='"+this+"' >").append("<img src='genImage.php?text="+this+"'>");
+	  $('#slideshow').append(li);	
+	});
+	slides = $('#slideshow').find('li');
+	// move all to the right.
+	slides.addClass('in');
+
+	// move first one to current.
+	$(slides[0]).removeClass().addClass('current');
+	currentIndex = 0;
+	count = 0;
+}
+
+
+
+//createList();
+
+function nextSlide() {
+  $('#next').attr('disabled','disabled');
+  
+  currentIndex += 1;
+  if (currentIndex >= slides.length) {
+    currentIndex = 0;
+  }
+  
+  // move any previous 'out' slide to the right side.
+  $('.out').removeClass().addClass('in');
+  
+  // move current to left.
+  $('.current').removeClass().addClass('out');
+  
+  // move next one to current.
+  $(slides[currentIndex]).removeClass().addClass('current');
+  
+  
+  count += 1;
+  if (count > maximumCount || (count > minimumCount && Math.random()>0.3) ) {
+    clearInterval(interval);
+    
+    $('#next').removeAttr('disabled');
+	addResult();
+	
+  }
+}
+
+//var interval = setInterval(nextSlide, 120);
+
+
+$('#next').click(function(){  
+createList();
+  count = 0;
+  interval = setInterval(nextSlide, 120);
+});
+$('#again').click(function(){  
+ //$("#again").prop("disabled",true);
+ $("#next").prop("disabled",false);
+ $("#resultList").empty();
+ nameList=defaultNameList.slice();
+});
+</script>
+
+</body>
+</html>
